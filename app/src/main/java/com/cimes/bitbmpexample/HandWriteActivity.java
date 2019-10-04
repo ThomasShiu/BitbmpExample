@@ -2,6 +2,7 @@ package com.cimes.bitbmpexample;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Service;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
@@ -11,6 +12,7 @@ import android.graphics.drawable.Drawable;
 import android.media.MediaScannerConnection;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Vibrator;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -23,21 +25,15 @@ import java.io.IOException;
 public class HandWriteActivity extends AppCompatActivity {
     private Context context;
     private final String TAG = "HandWriteActivity";
-//    private ts_func Ts_func=new ts_func(this);
-//    private FuckingService FS=new FuckingService(this);
+    //取得震動服務
+    private Vibrator myVibrator;
     private File sdCard = Environment.getExternalStorageDirectory();
-//    private sqliteDB DH;
+
     private SQLiteDatabase mDB = null;
     private LinePathView paintView;
     private LinearLayout ll;
     private Button btn_save,btn_clear;
     public  boolean debug= false;  // 偵錯用
-//    @Override
-//    protected void onCreate(Bundle savedInstanceState) {
-//        super.onCreate(savedInstanceState);
-//        setContentView(R.layout.activity_handwrite);
-//    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +42,10 @@ public class HandWriteActivity extends AppCompatActivity {
         setContentView(R.layout.activity_handwrite);
         //ButterKnife.bind(this);
         setResult(50);
+
+
+        //震動服務
+        myVibrator = (Vibrator) this.context.getSystemService(Service.VIBRATOR_SERVICE);
 
         paintView= (LinePathView)findViewById(R.id.paintView);
         ll= (LinearLayout)findViewById(R.id.ll);
@@ -63,18 +63,12 @@ public class HandWriteActivity extends AppCompatActivity {
                         String savePath=sdCard.getAbsolutePath() + File.separator+"Download/sign.bmp";
                         paintView.save(savePath, false, 10);
 
-                        //linepathview.saveBmp("/sdcard/Download/sign.bmp", true, 10);
                         // BMP 轉成 PNG
                         bmpToPNG();
 
-                        // 取得SharedPreference設定("Preference"為設定檔的名稱)
-                        //SharedPreferences settings = getSharedPreferences("pf_Select_Value", 0);
-                        // 置入name屬性的字串
-                        //settings.edit().putString("mode", "showSign").commit();
-
+                        myVibrator.vibrate(new long[]{10, 100, 30, 100, 10}, -1);
                         setResult(100);
-                        //Toast.makeText(HandWriteActivity.this, "已儲存", Toast.LENGTH_SHORT).show();
-                        //Toast.makeText(HandWriteActivity.this, "已儲存\r\n"+savePath, Toast.LENGTH_SHORT).show();
+
                         finish();
 
                     } catch (IOException e) {
@@ -101,7 +95,6 @@ public class HandWriteActivity extends AppCompatActivity {
         super.onDestroy();
     }
     public void RefreshEXStorage(String file){
-        //String strPath = Environment.getExternalStorageDirectory()+ File.separator + "ids_temp";
 
         MediaScannerConnection.scanFile(context, new String[] {file}, null,null);
 
